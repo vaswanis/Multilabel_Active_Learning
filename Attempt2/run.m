@@ -15,7 +15,13 @@ opts.small_sigma = 1e-2;
 opts.maxiter = 1000;
 
 %extract data
-[X,y]  = parse_data('.\datasets\birds\birds-train.arff',L);
+if ispc
+    data_fname = '.\datasets\birds\birds-train.arff';
+else
+    data_fname = './datasets/birds/birds-train.arff'
+end
+
+[X,y]  = parse_data(data_fname ,L);
 y = 2 * y - 1;
 
 %train
@@ -26,7 +32,7 @@ t = clock;
 fprintf('Train time = %f\n', etime(clock,t));
 
 %extract data
-[X_test,y_test]  = parse_data('.\datasets\birds\birds-test.arff',L);
+[X_test,y_test]  = parse_data(data_fname ,L);
 
 %test
 t = clock;
