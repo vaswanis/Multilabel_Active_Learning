@@ -26,45 +26,24 @@ y = 2 * y - 1;
 N = size(X,1);
 
 %n-fold cross-validation
-n = 5;
+n=2 
 chunk_size = floor(N/n);
-min_param_err = 100;
-for chi=[1e-4, 1e-3, 1e-2]
-    for small_sigma = [1e-2, 1e-3, 1e-4]
+for chi=[1,0.1,0.001]
+    for small_sgima = [1, 0.1, 0.001]
         err = zeros(n,1);
         for test_num = 1:n
             Xtest = X((test_num-1)*chunk_size+1, :);
             Xtrain = X(setdiff(1:N,(test_num-1)*chunk_size+1),:);
-            Ytest = y((test_num-1)*chunk_size+1,:);
-            Ytrain = y(setdiff(1:N,(test_num-1)*chunk_size+1),:);
-            
-            opt.chi = chi;
-            ops.small_sigma = small_sigma;
-            
-            [W,phi,opts] = train_mod2(Xtrain,Ytrain,K,opts);
-            
-            Ytemp = test(Xtest,W,L,phi,opts);
-            Yhat = concat_struct_attr(Ytemp,'mu');
-            
-            err(test_num) = compute_hamming_distance(Yhat, Ytest);
-        end
-        param_err = mean(err);
-        if param_err < min_param_err
-            best_small_sigma = small_sigma;
-            best_chi = chi;
-            min_param_err = param_err;
+            Ytest = y((test_num-1)*chunk_size+1);
+            Ytrain = y(setdiff(1:N,(test_num-1)*chunk_size+1));
+            [W,phi,opts] = train_mod2(X,y,K,opts);
+            Y = test(X_test,W,L,phi,opts);
+            Y = concat_struct_attr(Y,'mu');
         end
         
     end
 end
-
-best_small_sigma
-best_chi
-min_param_err
-
     
-opts.chi = best_chi;
-ops.small_sigma = best_small_sigma;
         
 
 %train
