@@ -1,4 +1,4 @@
-function [Y] = test(X,W,L,opts)
+function [Y] = test(X,W,L,phi,opts)
 
 %noise parameters
 chi = opts.chi;
@@ -7,13 +7,12 @@ small_sigma = opts.small_sigma;
 maxiter = opts.maxiter;
 
 G = X' * X;
-
 d = size(X,2); %#(num features)
 N = size(X,1); %#(num examples)
 K = size(W,2); %#(num compressed labels)
 
 %random projection matrix
-phi = rand(K,L);
+% phi = rand(K,L);
 
 %initialization
 Z(1:N) = struct('mu',zeros(K,1),'sigma',eye(K));
@@ -26,15 +25,22 @@ a0 = a;
 b0 = b;
 
 for i = 1:N
-    Z(i).sigma = (small_sigma^2 + chi^2) * eye(K,K);
+    Z(i).sigma = ((small_sigma^2 * chi^2) / (small_sigma^2 + chi^2)) * eye(K,K);
 end
 
-%train examples
-for t = 1:maxiter
-    t    
-    for i = 1:N
+%test examples
+for i = 1:N
+    
+    if mod(i,100) == 0
+        fprintf('Test example: %d\n', i);
+    end
+    
+    x_i = X(i,:);
+    
+    for t = 1:maxiter
         
-        x_i = X(i,:);
+        %update Z(i)
+        Z(i).mu = Z(i).sigma * ( (small_sigma^-2 * (concat_struct_attr(W,'mu') * x_i')) + ( chi^(-2) * phi * Y(i).mu)  );
         
         %find expectation of alpha_i
         a_i = a(i,:);
@@ -49,32 +55,8 @@ for t = 1:maxiter
         a = a0 + 0.5;
         b(i,:) = b0(i,:) + 0.5 * ((diag(Y(i).sigma) + (Y(i).mu).^2))';
         
-        %update Z(i)
-        Z(i).mu = Z(i).sigma * ( (small_sigma^-2 * (concat_struct_attr(W,'mu') * x_i')) + ( chi^(-2) * phi * Y(i).mu)  );
-        
     end
     
-    
-        
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 end
