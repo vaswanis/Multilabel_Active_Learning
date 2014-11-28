@@ -5,7 +5,7 @@ L = size(y_test,2);
 HD = 0;
 
 for i = 1:N
-    HD = HD + (sum(y_test(i,:) ~= (yhat(i,:) > 0)));
+    HD = HD + (sum(y_test(i,:) ~= ((yhat(i,:) > 0)*2-1)));
 end
 
 av_HD = HD / (L * N) * 100;

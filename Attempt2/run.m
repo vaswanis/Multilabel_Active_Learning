@@ -1,6 +1,6 @@
 clear;
 close all;
-clc;
+% clc;
 
 addpath('arff');
 %number of true labels
@@ -18,7 +18,7 @@ opts.maxiter = 1000;
 if ispc
     data_fname = '.\datasets\birds\birds-train.arff';
 else
-    data_fname = './datasets/birds/birds-train.arff'
+    data_fname = './datasets/birds/birds-train.arff';
 end
 
 [X,y]  = parse_data(data_fname ,L);
@@ -33,6 +33,7 @@ fprintf('Train time = %f\n', etime(clock,t));
 
 %extract data
 [X_test,y_test]  = parse_data(data_fname ,L);
+y_test = 2* y_test - 1;
 
 %test
 t = clock;

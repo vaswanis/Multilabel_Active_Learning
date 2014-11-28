@@ -6,8 +6,8 @@ total_pos_labels = 0;
 for i = 1:N
     
     [val, index] = sortrows(yhat(i,:)',-1);
-    no_pos_labels = sum(y_test(i,index(1:k)));
-    total_pos_labels = total_pos_labels + no_pos_labels;      
+    no_pos_labels = sum(y_test(i,index(1:k)) > 0);
+    total_pos_labels = total_pos_labels + no_pos_labels ;      
     
 end
 
