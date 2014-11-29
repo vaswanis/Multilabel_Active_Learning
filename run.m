@@ -41,7 +41,7 @@ for chi=[1e-4, 1e-3, 1e-2]
             opt.chi = chi;
             ops.small_sigma = small_sigma;
             
-            [W,phi,opts] = train_mod2(Xtrain,Ytrain,K,opts);
+            [W,phi,opts] = train_mod(Xtrain,Ytrain,K,opts);
             
             Ytemp = test(Xtest,W,L,phi,opts);
             Yhat = concat_struct_attr(Ytemp,'mu');
@@ -70,7 +70,7 @@ ops.small_sigma = best_small_sigma;
 %train
 t = clock;
 % ------------------------------------------------- %
-[W,phi,opts] = train_mod2(X,y,K,opts);
+[W,phi,opts] = train_mod(X,y,K,opts);
 % ------------------------------------------------- %
 fprintf('Train time = %f\n', etime(clock,t));
 
