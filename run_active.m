@@ -4,15 +4,15 @@ close all;
 
 addpath('arff');
 %number of true labels
-L = 19;
+L = 1;
 %number of compressed labels
-K = 19;
+K = 1;
 
 %noise parameters
-opts.chi = 1e-2;
+opts.chi = 1e-4;
 opts.small_sigma = 1e-1;
 %number of update iterations
-opts.maxiter = 500;
+opts.maxiter = 100;
 
 phi = rand(K,L);
 
@@ -35,10 +35,10 @@ end
 
 
 %concatenate train, test to derive posterior on y
-N = 100;
+% N = 200;
 X = [X_train ; X_test];
 y = [y_train; y_test];
-% N = size(X,1);
+N = size(X,1);
 X = X';
 X = X(:,1:N);
 y = y(1:N,:);
@@ -58,37 +58,44 @@ end
 phi_tilde = kron(eye(N),phi);
 sigma_Y_const_inverse = phi_tilde' * pinv( (opts.chi)^2 * eye(N*K,N*K) + sigma_Z_const ) * phi_tilde;
 
-Y = struct('mu',zeros(N*L,1),'sigma',zeros(N*L, N*L));
+Y = struct('mu',zeros(N*L,1),'sigma', eye(N*L, N*L));
 
 in_a = ones(N*L,1) * 1e-6;
 in_b = ones(N*L,1) * 1e-6;
 
 a = in_a + 0.5;
 b = in_b;
+b_old = b;
 
 for t = 1:opts.maxiter
     
 if mod(t,10) == 0
     t
+    b_change
 end
-E_alpha = a ./ b;    
+b = in_b + 0.5 * (diag(Y.sigma));
+E_alpha = a ./ b; 
 Y.sigma = pinv( diag(E_alpha) + sigma_Y_const_inverse ) ;
 
-b = in_b + 0.5 * (diag(Y.sigma));
+b_change = norm(b - b_old) / norm(b);
+if b_change < 1e-3
+    break;
+end
+b_old = b;
+
     
 end
 
-q = 0.2 * N * L; %number of labels to be predicted
+q = floor(0.1 * N * L); %number of labels to be predicted
 y = 2 * y - 1;
 sigma_12 = Y.sigma(1:q,q+1:end);
 sigma_22 = Y.sigma(q+1:end,q+1:end);
 temp = y';
 temp = temp(:);
-a = temp(1:N*L - q);
+a = temp(q+1:end);
 yhat = sigma_12 * pinv(sigma_22) * a;
 
-
-
+ypred = y(1:q);
 
 
 
