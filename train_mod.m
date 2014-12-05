@@ -1,4 +1,4 @@
-function [W,phi,opts] = train_mod(X,y,K,opts)
+function [W,phi,opts] = train_mod(X,y,K,opts,phi)
 
 L = size(y,2); %#(true labels)
 
@@ -13,7 +13,7 @@ d = size(X,2); %#(num features)
 N = size(X,1); %#(num examples)
 
 %random projection matrix
-phi = rand(K,L);
+%phi = rand(K,L);
 
 %initialization
 Z(1:N) = struct('mu',zeros(K,1),'sigma',eye(K));
