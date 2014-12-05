@@ -4,14 +4,17 @@ function [new_X_train, new_y_train, new_X_train_active, new_y_train_active, new_
     Y = test(X_train_active,W,L,phi,opts);
 	H = zeros(N_train_active, 1);
 	
-    for sample=1:N_train_active
-		H(sample) = logdet(Y(sample).sigma);
-    end
+    
     
     if strcmp(criterion, 'uncertainty')
+          for sample=1:N_train_active
+            H(sample) = logdet(Y(sample).sigma);
+         end
         [val, ind] = max(H); %get point with max uncertainty
     elseif strcmp(criterion, 'random')
         ind = randi([1 N_train_active], 1);
+    else
+        disp('unvalid criterion');
     end
     
 

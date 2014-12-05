@@ -6,12 +6,12 @@ addpath('arff');
 %number of true labels
 L = 174;
 %number of compressed labels
-percent_compression = 0.9;
+percent_compression = 0.7;
 K = floor((1 - percent_compression) * L);
 
 %number of update iterations
 opts.maxiter = 1000;
-opts.max_rounds = 3;
+opts.max_rounds = 5;
 train_fraction = 0.8;
 CV = 0;
 
@@ -29,7 +29,7 @@ N_train = floor(train_fraction * N);
 X_train = X(1:N_train,:);
 y_train = y(1:N_train,:);
 N_test = size(X,1) - N_train;
-N_train_initial = 100;
+N_train_initial = 200;
 N_train_active = N_train - N_train_initial;
 X_train_initial = X_train(1:N_train_initial, :);
 y_train_initial = y_train(1:N_train_initial, :);
@@ -58,15 +58,31 @@ phi = rand(K,L);
 % ------------------------------------------------- %
 fprintf('Train time = %f\n', etime(clock,t));
 
-for round = 1:opts.max_rounds
-%-------------------------------------------------- %
 
+    X_train_initial_uncertainty = X_train_initial;
+    y_train_initial_uncertainty = y_train_initial;
+    X_train_active_uncertainty = X_train_active;
+    y_train_active_uncertainty = y_train_active;
     X_train_initial_rand = X_train_initial;
     y_train_initial_rand = y_train_initial;
     X_train_active_rand = X_train_active;
-    y_traint_active_rand = y_train_active;
+    y_train_active_rand = y_train_active;
     
-    [X_train_initial, y_train_initial, X_train_active, y_train_active, W, phi, opts] = select_instance(X_train_initial, X_train_active, y_train_initial, y_train_active, W, L, opts, phi, K, 'uncertainty');
+    W_uncertainty = W;
+    W_rand = W;
+    
+    precision_uncertainty = zeros(opts.max_rounds, 1);
+    precision_rand = zeros(opts.max_rounds, 1);
+
+for round = 1:opts.max_rounds
+%-------------------------------------------------- %
+
+   
+    
+    [X_train_initial_uncertainty, y_train_initial_uncertainty, X_train_active_uncertainty, y_train_active_uncertainty, W_uncertainty, phi, opts] = select_instance(X_train_initial_uncertainty, X_train_active_uncertainty, y_train_initial_uncertainty, y_train_active_uncertainty, W_uncertainty, L, opts, phi, K, 'uncertainty');
+   
+    
+    [X_train_initial_rand, y_train_initial_rand, X_train_active_rand, y_train_active_rand, W_rand, phi, opts] = select_instance(X_train_initial_rand, X_train_active_rand, y_train_initial_rand, y_train_active_rand, W_rand, L, opts, phi, K, 'random');
 	
 %     Y = test(X_train_active,W,L,phi,opts);
 % 	H = zeros(N_train_active, 1);
@@ -88,15 +104,22 @@ for round = 1:opts.max_rounds
 % 	[W,phi,opts] = train_mod(X_train_initial,y_train_initial,K,opts,phi);
 
 	%test at each round	
-	Y = test(X_test,W,L,phi,opts);
-	yhat = concat_struct_attr(Y,'mu');
+	Y = test(X_test,W_uncertainty,L,phi,opts);
+	yhat_uncertainty = concat_struct_attr(Y,'mu');
+    
+    Y = test(X_test,W_rand,L,phi,opts);
+	yhat_rand = concat_struct_attr(Y,'mu');
+    
 
 	% calculating precision@k
 	k = 5;
-	precision = compute_precision(yhat, y_test,k)
+	precision_uncertainty(round) = compute_precision(yhat_uncertainty, y_test,k);
+    precision_rand(round) = compute_precision(yhat_rand, y_test,k);
 
 % ------------------------------------------------- %
 end
+precision_uncertainty
+precision_rand
 %test
 t = clock;
 % ------------------------------------------------- %
