@@ -4,102 +4,111 @@ close all;
 
 addpath('arff');
 %number of true labels
-L = 1;
+L = 174;
 %number of compressed labels
-K = 1;
+percent_compression = 0.9;
+K = floor((1 - percent_compression) * L);
 
-%noise parameters
-opts.chi = 1e-4;
-opts.small_sigma = 1e-1;
 %number of update iterations
-opts.maxiter = 100;
+opts.maxiter = 1000;
+opts.max_rounds = 3;
+train_fraction = 0.8;
+CV = 0;
 
-phi = rand(K,L);
-
-%extract train data
+%extract data
 if ispc
-    data_fname = '.\datasets\birds\birds-train.arff';
+    data_fname = '.\datasets\CAL500\CAL500.arff';
 else
-    data_fname = './datasets/birds/birds-train.arff';
+    data_fname = './datasets/CAL500/CAL500.arff';
 end
-[X_train,y_train]  = parse_data(data_fname ,L);
-d = size(X_train,2);
-
-%extract test data
-if ispc
-    data_fname = '.\datasets\birds\birds-test.arff';
-else
-    data_fname = './datasets/birds/birds-test.arff';
-end
-[X_test,y_test]  = parse_data(data_fname ,L);
-
-
-%concatenate train, test to derive posterior on y
-% N = 200;
-X = [X_train ; X_test];
-y = [y_train; y_test];
+[X,y]  = parse_data(data_fname ,L);
+disp('Read file');
 N = size(X,1);
-X = X';
-X = X(:,1:N);
-y = y(1:N,:);
+% y = 2 * y - 1;
+N_train = floor(train_fraction * N);
+X_train = X(1:N_train,:);
+y_train = y(1:N_train,:);
+N_test = size(X,1) - N_train;
+N_train_initial = 100;
+N_train_active = N_train - N_train_initial;
+X_train_initial = X_train(1:N_train_initial, :);
+y_train_initial = y_train(1:N_train_initial, :);
+X_train_active = X_train(N_train_initial+1: end, :);
+y_train_active = y_train(N_train_initial+1: end, :);
+X_test = X(N_train + 1:end,:);
+y_test = y(N_train+1:end,:);
 
-Y(1:N) = struct('mu',zeros(L,1),'sigma',eye(L));
 
-G = X' * X;
-K_const = G + (opts.small_sigma)^2 * eye(N,N);
-
-sigma_Z_const = zeros(N*K, N*K);
-for i = 1:N
-    for j = 1:N
-        Kij = eye(K,K) * K_const(i,j);
-        sigma_Z_const((i-1)*K + 1:i * K, (j-1)*K + 1:j*K) = Kij;
-    end
+%n-fold cross-validation
+if CV
+   cross_validation;
+else
+    best_small_sigma = 1e-2;
+    best_chi = 1e-4;
 end
-phi_tilde = kron(eye(N),phi);
-sigma_Y_const_inverse = phi_tilde' * pinv( (opts.chi)^2 * eye(N*K,N*K) + sigma_Z_const ) * phi_tilde;
+opts.chi = best_chi;
+opts.small_sigma = best_small_sigma;
 
-Y = struct('mu',zeros(N*L,1),'sigma', eye(N*L, N*L));
+%train
+t = clock;
+% ------------------------------------------------- %
+%load 'phi_50'
+phi = rand(K,L);
+[W,phi,opts] = train_mod(X_train_initial,y_train_initial,K,opts,phi);
+% ------------------------------------------------- %
+fprintf('Train time = %f\n', etime(clock,t));
 
-in_a = ones(N*L,1) * 1e-6;
-in_b = ones(N*L,1) * 1e-6;
+for round = 1:opts.max_rounds
+%-------------------------------------------------- %
+	Y = test(X_train_active,W,L,phi,opts);
+	H = zeros(N_train_active, 1);
+	for sample=1:N_train_active
+		H(sample) = logdet(Y(sample).sigma);
+	end
 
-a = in_a + 0.5;
-b = in_b;
-b_old = b;
+	[val, ind] = max(H); %get point with max uncertainty
 
-for t = 1:opts.maxiter
-    
-if mod(t,10) == 0
-    t
-    b_change
+	X_train_initial = [X_train_initial ; X_train_active(ind,:)];
+	y_train_initial = [y_train_initial ; y_train_active(ind,:)];
+	X_train_active(ind,:) = [];
+	y_train_active(ind,:) = [];
+
+	N_train_active = N_train_active - 1;
+	N_train_initial = N_train_initial + 1;
+
+		
+	[W,phi,opts] = train_mod(X_train_initial,y_train_initial,K,opts,phi);
+
+	%test at each round	
+	Y = test(X_test,W,L,phi,opts);
+	yhat = concat_struct_attr(Y,'mu');
+
+	% calculating precision@k
+	k = 5;
+	precision = compute_precision(yhat, y_test,k)
+
+% ------------------------------------------------- %
 end
-b = in_b + 0.5 * (diag(Y.sigma));
-E_alpha = a ./ b; 
-Y.sigma = pinv( diag(E_alpha) + sigma_Y_const_inverse ) ;
+%test
+t = clock;
+% ------------------------------------------------- %
+Y = test(X_test,W,L,phi,opts);
+yhat = concat_struct_attr(Y,'mu');
+% ------------------------------------------------- %
+fprintf('Test time = %f\n', etime(clock,t));
 
-b_change = norm(b - b_old) / norm(b);
-if b_change < 1e-3
-    break;
-end
-b_old = b;
+% calculating precision@k
+k = 5;
+precision = compute_precision(yhat, y_test,k);
 
-    
-end
+% calculating average relative hamming distance
+%HD = compute_hamming_distance(yhat, y_test);
 
-q = floor(0.1 * N * L); %number of labels to be predicted
-y = 2 * y - 1;
-sigma_12 = Y.sigma(1:q,q+1:end);
-sigma_22 = Y.sigma(q+1:end,q+1:end);
-temp = y';
-temp = temp(:);
-a = temp(q+1:end);
-yhat = sigma_12 * pinv(sigma_22) * a;
+%Display Results
+fprintf('Results: Number of labels = %d, Amount of compression = %f\n', L, (1 - (K/L))* 100);
+fprintf('Precision@%d = %f\n', k, precision);
+%fprintf('Average Relative Hamming Distance = %f\n',HD);
 
-ypred = y(1:q);
-
-
-
-
-
-
-
+%TODO:
+% learn the noise parameters - Gaussian process regression
+% just one data point and test = train
