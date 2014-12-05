@@ -60,10 +60,8 @@ for i = 1:N
         b(i,:) = b0(i,:) + 0.5 * ((diag(Y(i).sigma) + (Y(i).mu).^2))';
         
         if mod(t,10) == 0
-%             fprintf('Iteration: %d\n', t);
-            if norm(b(:) - b_old) < 1e-5
-                break;
-            end
+            fprintf('Iteration: %d\n', t);
+            if norm(b(:) - b_old)
         end
         
         

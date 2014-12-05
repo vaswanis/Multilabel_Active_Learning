@@ -1,4 +1,4 @@
-function [W,phi,opts] = train_mod2(X,y,K,opts)
+function [W,phi,opts] = train_mod(X,y,K,opts)
 
 L = size(y,2); %#(true labels)
 
@@ -30,14 +30,17 @@ end
 
 %train examples
 
-
+temp = (concat_struct_attr(Z,'mu'));
 for t = 1:maxiter
     
-    if mod(t,100) == 0
+    if mod(t,10) == 0
         fprintf('Training iteration: %d\n', t);
+        if norm(temp_old - temp(:)) < 1e-4
+            break;
+        end
     end
     
-    for i = 1:N     
+    for i = 1:N
         x_i = X(i,:);
         y_i = (y(i,:))';
         
@@ -46,9 +49,11 @@ for t = 1:maxiter
         
     end
     
+    temp_old = temp(:);
+    temp = (concat_struct_attr(Z,'mu'));
+    
     for k = 1:K
-        %update W(i)
-        temp = (concat_struct_attr(Z,'mu'));
+        %update W(i)     
         W(k).mu = (small_sigma)^(-2) * W(k).sigma * X' * temp(:,k);
     end
     
