@@ -1,0 +1,27 @@
+function [new_X_train, new_Y_train] = select_best_instance(X_train_initial, X_train_active, Y_train_initial, Y_train_active, W, L, opts, phi, criterion)
+
+    Y = test(X_train_active,W,L,phi,opts);
+	H = zeros(N_train_active, 1);
+	for sample=1:N_train_active
+		H(sample) = logdet(Y(sample).sigma);
+	end
+
+	[val, ind] = max(H); %get point with max uncertainty
+
+	X_train_initial = [X_train_initial ; X_train_active(ind,:)];
+	y_train_initial = [y_train_initial ; y_train_active(ind,:)];
+	X_train_active(ind,:) = [];
+	y_train_active(ind,:) = [];
+
+	N_train_active = N_train_active - 1;
+	N_train_initial = N_train_initial + 1;
+
+		
+	[W,phi,opts] = train_mod(X_train_initial,y_train_initial,K,opts,phi);
+
+	%test at each round	
+	Y = test(X_test,W,L,phi,opts);
+	yhat = concat_struct_attr(Y,'mu');
+
+end
+
