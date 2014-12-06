@@ -30,6 +30,7 @@ X_train = X(1:N_train,:);
 y_train = y(1:N_train,:);
 N_test = size(X,1) - N_train;
 N_train_initial = 200;
+selection_batch_size = 10;
 N_train_active = N_train - N_train_initial;
 X_train_initial = X_train(1:N_train_initial, :);
 y_train_initial = y_train(1:N_train_initial, :);
@@ -79,10 +80,10 @@ for round = 1:opts.max_rounds
 
    
     
-    [X_train_initial_uncertainty, y_train_initial_uncertainty, X_train_active_uncertainty, y_train_active_uncertainty, W_uncertainty, phi, opts] = select_instance(X_train_initial_uncertainty, X_train_active_uncertainty, y_train_initial_uncertainty, y_train_active_uncertainty, W_uncertainty, L, opts, phi, K, 'uncertainty');
+    [X_train_initial_uncertainty, y_train_initial_uncertainty, X_train_active_uncertainty, y_train_active_uncertainty, W_uncertainty, phi, opts] = select_instance(X_train_initial_uncertainty, X_train_active_uncertainty, y_train_initial_uncertainty, y_train_active_uncertainty, W_uncertainty, L, opts, phi, K, 'uncertainty', selection_batch_size);
    
     
-    [X_train_initial_rand, y_train_initial_rand, X_train_active_rand, y_train_active_rand, W_rand, phi, opts] = select_instance(X_train_initial_rand, X_train_active_rand, y_train_initial_rand, y_train_active_rand, W_rand, L, opts, phi, K, 'random');
+    [X_train_initial_rand, y_train_initial_rand, X_train_active_rand, y_train_active_rand, W_rand, phi, opts] = select_instance(X_train_initial_rand, X_train_active_rand, y_train_initial_rand, y_train_active_rand, W_rand, L, opts, phi, K, 'random', selection_batch_size);
 	
 %     Y = test(X_train_active,W,L,phi,opts);
 % 	H = zeros(N_train_active, 1);
