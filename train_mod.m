@@ -1,4 +1,4 @@
-function [W,phi,opts] = train_mod(X,y,K,opts,phi)
+function [W,phi,opts] = train_mod(X,y,K,opts,phi, rand_initialize, W)
 
 L = size(y,2); %#(true labels)
 
@@ -17,7 +17,10 @@ N = size(X,1); %#(num examples)
 
 %initialization
 Z(1:N) = struct('mu',zeros(K,1),'sigma',eye(K));
-W(1:K) = struct('mu',zeros(d,1),'sigma',eye(d));
+
+if rand_initialize == 1
+	W(1:K) = struct('mu',zeros(d,1),'sigma',eye(d));
+end
 
 for k = 1:K
     W(k).sigma = pinv(small_sigma^(-2) * G + eye(d));
@@ -34,7 +37,7 @@ temp = (concat_struct_attr(Z,'mu'));
 for t = 1:maxiter
     
     if mod(t,10) == 0
-        fprintf('Training iteration: %d\n', t);
+        %fprintf('Training iteration: %d\n', t);
         if norm(temp_old - temp(:)) < 1e-4
             break;
         end

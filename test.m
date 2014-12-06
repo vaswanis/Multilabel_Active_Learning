@@ -33,7 +33,7 @@ concat_W = (concat_struct_attr(W,'mu'));
 for i = 1:N
     
     if mod(i,10) == 0
-        fprintf('Test example: %d\n', i);
+        %fprintf('Test example: %d\n', i);
     end
     
     x_i = X(i,:);

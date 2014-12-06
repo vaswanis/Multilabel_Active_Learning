@@ -5,10 +5,9 @@ function [new_X_train, new_y_train, new_X_train_active, new_y_train_active, new_
 	H = zeros(N_train_active, 1);
 	
     
-    
     if strcmp(criterion, 'uncertainty')
           for sample=1:N_train_active
-            H(sample) = logdet(Y(sample).sigma);
+            H(sample) = abs(logdet(Y(sample).sigma));
           end
         [~, inds] = sort(H(:), 'descend');
     elseif strcmp(criterion, 'random')
@@ -21,16 +20,13 @@ function [new_X_train, new_y_train, new_X_train_active, new_y_train_active, new_
     
 	new_X_train = [X_train_initial ; X_train_active(selection_inds,:)];
 	new_y_train = [y_train_initial ; y_train_active(selection_inds,:)];
-    new_X_train_active = X_train_active;
-    new_y_train_active = y_train_active;
+	new_X_train_active = X_train_active;
+	new_y_train_active = y_train_active;
 	new_X_train_active(selection_inds,:) = [];
 	new_y_train_active(selection_inds,:) = [];
 
-% 	N_train_active = N_train_active - 1;
-% 	N_train_initial = N_train_initial + 1;
 
-		
-	[new_W,new_phi,new_opts] = train_mod(new_X_train,new_y_train,K,opts,phi);
+	[new_W,new_phi,new_opts] = train_mod(new_X_train,new_y_train,K,opts,phi, 0, W);
 
 
 end
