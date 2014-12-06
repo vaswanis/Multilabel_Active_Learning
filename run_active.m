@@ -6,7 +6,7 @@ addpath('arff');
 %number of true labels
 L = 174;
 %number of compressed labels
-percent_compression = 0.7;
+percent_compression = 0.1;
 K = floor((1 - percent_compression) * L);
 
 %number of update iterations
