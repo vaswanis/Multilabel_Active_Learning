@@ -1,17 +1,17 @@
 function [new_X_train, new_y_train, new_X_train_active, new_y_train_active, new_W, new_phi, new_opts] = select_instance(X_train_initial, X_train_active, y_train_initial, y_train_active, W, L, opts, phi, K, criterion, batch_size)
 
     N_train_active = size(X_train_active, 1);
-    Y = test_mod(X_train_active,W,L,phi,opts); 
 
-    H = zeros(N_train_active, 1);
-    
     if strcmp(criterion, 'uncertainty')
 
+	  Y = test_mod(X_train_active,W,L,phi,opts); 
+	  H = zeros(N_train_active, 1);
+    
           for i = 1:N_train_active
             %H(sample) = ((rcond(Y(sample).sigma)));
+	    %H(i) = sum(abs(log(diag(Y(i).sigma))));
 	    H(i) = sum(abs(diag(Y(i).sigma)));
           end
-	  H
           [~, inds] = sort(H(:), 'descend');
 
     elseif strcmp(criterion, 'random')

@@ -36,9 +36,11 @@ end
 temp = (concat_struct_attr(Z,'mu'));
 for t = 1:maxiter
     
-    if mod(t,10) == 0
+    if mod(t,100) == 0
         %fprintf('Training iteration: %d\n', t);
-        if norm(temp_old - temp(:)) < 1e-4
+        %norm(temp_old - temp(:)) / norm(temp)
+        if norm(temp_old - temp(:)) / norm(temp) < 1e-6
+	    %fprintf('Breaks at iteration %d\n', t);
             break;
         end
     end
