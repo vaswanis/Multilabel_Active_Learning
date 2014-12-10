@@ -31,13 +31,17 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,opts)
 
 	%train
 	t = clock;
-	phi = rand(K,L);
+	%phi = rand(K,L);
+
+	%phi = round(rand(K,L));
 
 	%phi = zeros(K,L);
-	%for i = 1:(L-K)
-	%	col = ceil(rand() * L);  
-	%	phi(:,col) = zeros(K,1);
-	%end
+
+	phi = rand(K,L);
+	for i = 1:(L-K)
+		col = ceil(rand() * L);  
+		phi(:,col) = zeros(K,1);
+	end
 	
         [W,phi,opts] = train_mod(X_train,y_train,K,opts,phi,1,[]);
 	train_time = etime(clock,t); 

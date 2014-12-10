@@ -1,20 +1,20 @@
 %number of runs 
-total_runs = 3;
+total_runs = 1;
 
 %load dataset
-load './datasets/nuswide'
-X = X(1:2000,:);
-y = y(1:2000,:);
+load './datasets/enron'
+%X = X(1:2000,:);
+%y = y(1:2000,:);
 
 %compression ratios to run for
-percent_compression_list = 0:0.1:0.9;
-%percent_compression_list = 0.8;
+%percent_compression_list = 0:0.1:0.9;
+percent_compression_list = 0.5;
 
 %parameters
-opts.maxiter = 500;
+opts.maxiter = 100;
 opts.train_fraction = 0.8;
 opts.CV = 0;
-opts.k = 1;
+opts.k = 3;
 
 p = size(percent_compression_list,2);
 

@@ -15,7 +15,7 @@ percent_compression_list = 0.8;
 opts.maxiter = 200;
 opts.train_fraction = 0.8;
 opts.CV = 0;
-opts.k = 1;
+opts.k = 2;
 
 %active learning parameters
 opts.max_rounds = 50;

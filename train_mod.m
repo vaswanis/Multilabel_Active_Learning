@@ -9,6 +9,10 @@ small_sigma = opts.small_sigma;
 maxiter = opts.maxiter;
 
 G = X' * X; %Gram matrix
+
+%Kernel matrix
+
+
 d = size(X,2); %#(num features)
 N = size(X,1); %#(num examples)
 
