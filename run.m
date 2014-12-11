@@ -8,6 +8,7 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,opts)
 
 	%number of examples
 	N = size(X,1);
+	d = size(X,2);
 
 	N_train = floor(opts.train_fraction * N);
 
@@ -31,19 +32,36 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,opts)
 
 	%train
 	t = clock;
-	%phi = rand(K,L);
+	phi = rand(K,L);
 
 	%phi = round(rand(K,L));
-
 	%phi = zeros(K,L);
-
-	phi = rand(K,L);
-	for i = 1:(L-K)
-		col = ceil(rand() * L);  
-		phi(:,col) = zeros(K,1);
+	%phi = rand(K,L);
+	%for i = 1:(L-K)
+	%	col = ceil(rand() * L);  
+	%	phi(:,col) = zeros(K,1);
+	%end
+	kernel_length_scale = 1;
+	kernel_sigma = 1000;
+	if opts.kernelize == 1
+		kernel = zeros(N_train,N_train);
+		for i = 1:N_train
+			for j = 1:N_train
+				temp_kernel = kernel_sigma^2 * exp(- norm(X(i,:) - X(j,:)) ^ 2 / (2 * kernel_length_scale^2));
+				kernel(i,j) = temp_kernel;
+%				kernel(i,j) = kernel_sigma ^2 * exp( - norm(X_train(i,:) - X_train(j,:))^2 / (2 * (kernel_length_scale)^2 ) );
+%				kernel(i,j) = X_train(i,:) * X_train(j,:)';
+				%pause;
+			end
+		end
+		G = X_train' * pinv( kernel +  (opts.small_sigma)^(2) * eye(N_train) ) ;
+	else
+		G = pinv(X_train' * X_train + (opts.small_sigma)^2 * eye(d)) * X_train';
+		
 	end
+
 	
-        [W,phi,opts] = train_mod(X_train,y_train,K,opts,phi,1,[]);
+        [W,phi,opts] = train_mod(X_train,y_train,K,opts,phi,1,[], G);
 	train_time = etime(clock,t); 
 	fprintf('Train time = %f\n', train_time);
 

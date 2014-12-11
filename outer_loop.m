@@ -14,7 +14,8 @@ percent_compression_list = 0.5;
 opts.maxiter = 100;
 opts.train_fraction = 0.8;
 opts.CV = 0;
-opts.k = 3;
+opts.k = 1;
+opts.kernelize = 1;
 
 p = size(percent_compression_list,2);
 

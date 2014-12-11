@@ -1,4 +1,4 @@
-function [W,phi,opts] = train_mod(X,y,K,opts,phi, rand_initialize, W)
+function [W,phi,opts] = train_mod(X,y,K,opts,phi, rand_initialize, W, G)
 
 L = size(y,2); %#(true labels)
 
@@ -7,10 +7,6 @@ chi = opts.chi;
 small_sigma = opts.small_sigma;
 %number of update iterations
 maxiter = opts.maxiter;
-
-G = X' * X; %Gram matrix
-
-%Kernel matrix
 
 
 d = size(X,2); %#(num features)
@@ -26,9 +22,9 @@ if rand_initialize == 1
 	W(1:K) = struct('mu',zeros(d,1),'sigma',eye(d));
 end
 
-for k = 1:K
-    W(k).sigma = pinv(small_sigma^(-2) * G + eye(d));
-end
+%for k = 1:K
+%    W(k).sigma = pinv(small_sigma^(-2) * G + eye(d));
+%end
 
 
 for i = 1:N
@@ -63,7 +59,7 @@ for t = 1:maxiter
     
     for k = 1:K
         %update W(i)     
-        W(k).mu = (small_sigma)^(-2) * W(k).sigma * X' * temp(:,k);
+        W(k).mu = G * temp(:,k);
     end
     
 end
