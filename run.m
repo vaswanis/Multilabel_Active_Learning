@@ -1,4 +1,4 @@
-function [precision,train_time, test_time] = run(percent_compression, X,y,opts)
+function [precision,train_time, test_time] = run(percent_compression, X,y,phi,opts)
 
 	%number of true labels
 	L = size(y,2);
@@ -33,9 +33,6 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,opts)
 	%train
 	t = clock;
 	
-	%random projection matrix
-	phi = rand(K,L);
-
 	%random binary projection  matrix
 	%phi = round(rand(K,L));
 
@@ -50,17 +47,21 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,opts)
 	%end
 
 	%squared exponential kernel parameters
+
 	kernel_length_scale = 1;
-	kernel_sigma = 1000;
 
 	if opts.kernelize == 1
 		kernel = zeros(N_train,N_train);
 		for i = 1:N_train
 			for j = 1:N_train
-				temp_kernel = kernel_sigma^2 * exp(- norm(X(i,:) - X(j,:)) ^ 2 / (2 * kernel_length_scale^2));
+				temp_kernel = exp(- norm(X_train(i,:) - X_train(j,:)) ^ 2 / (2 * kernel_length_scale^2));
 				kernel(i,j) = temp_kernel;
 			end
 		end
+
+		kernel_sigma = sqrt( norm(X_train' * X_train) / norm(kernel) );
+		kernel = kernel * kernel_sigma ^ 2;
+
 		G = X_train' * pinv( kernel +  (opts.small_sigma)^(2) * eye(N_train) ) ;
 	else
 		G = pinv(X_train' * X_train + (opts.small_sigma)^2 * eye(d)) * X_train';

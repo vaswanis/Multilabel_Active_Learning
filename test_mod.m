@@ -5,7 +5,7 @@ chi = opts.chi;
 small_sigma = opts.small_sigma;
 
 %number of update iterations
-maxiter = opts.maxiter;
+maxiter = opts.test_maxiter;
 
 G = X' * X;
 d = size(X,2); %#(num features)
@@ -53,7 +53,7 @@ for i = 1:N
         b_i = b0(i,:) + 0.5 * ((diag(Y(i).sigma) + (Y(i).mu).^2))';
 
 	if norm(Y(i).mu - y_old) / norm(Y(i).mu) < 1e-4
-		break;
+		%break;
 	end
 
     end

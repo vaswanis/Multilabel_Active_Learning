@@ -6,7 +6,7 @@ L = size(y,2); %#(true labels)
 chi = opts.chi;
 small_sigma = opts.small_sigma;
 %number of update iterations
-maxiter = opts.maxiter;
+maxiter = opts.train_maxiter;
 
 d = size(X,2); %#(num features)
 N = size(X,1); %#(num examples)
@@ -26,7 +26,7 @@ for t = 1:maxiter
     
     if mod(t,100) == 0
         if norm(temp_old - temp(:)) / norm(temp) < 1e-6
-            break;
+            %break;
         end
     end
     

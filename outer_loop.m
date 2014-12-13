@@ -2,46 +2,74 @@
 total_runs = 1;
 
 %load dataset
-load './datasets/nuswide'
+dataset = 'CAL500';
+load(['./datasets/' dataset]);
 
 %artificially reduce number of samples in dataset
-X = X(1:2000,:);
-y = y(1:2000,:);
+%X = X(1:500,:);
+%y = y(1:500,:);
 
 %compression ratios to run for
 %percent_compression_list = 0:0.1:0.9;
 percent_compression_list = 0.9;
 
 %parameters
-opts.maxiter = 100;
+opts.train_maxiter = 200;
+opts.test_maxiter = 100;
+
 opts.train_fraction = 0.8;
 opts.CV = 0;
 opts.k = 1;
-opts.kernelize = 1;
 
 p = size(percent_compression_list,2);
 
 precision_table = zeros(p,total_runs);
 train_time_table = zeros(p,total_runs);
 
+%number of true labels
+L = size(y,2);
+
 for i = 1:p
 
 	percent_compression = percent_compression_list(i);
+
+	%number of compressed labels
+	K = floor((1 - percent_compression) * L);
+
 	fprintf('--------------- Percent Compression = %f --------------------------------\n', percent_compression);
 
 	for run_no = 1:total_runs
 
-	        [precision,train_time,test_time]= run(percent_compression,X,y,opts);
+		%random projection matrix
+		phi = rand(K,L);
 
-		precision_table(i,run_no) = precision;
-		train_time_table(i,run_no) = train_time;
-		
+		%without kernelization
+		opts.kernelize = 0;
+	        [precision,train_time,test_time]= run(percent_compression,X,y,phi,opts);
+		no_kernel_precision_table(i,run_no) = precision;
+		no_kernel_train_time_table(i,run_no) = train_time;
+
+
+		%with kernelization
+		opts.kernelize = 1;
+	        [precision,train_time,test_time]= run(percent_compression,X,y,phi,opts);
+		kernel_precision_table(i,run_no) = precision;
+		kernel_train_time_table(i,run_no) = train_time;
 
 		fprintf('End of run %d\n',run_no);
-	end
 
+	end
 end
 
-mean_precision = mean(precision_table,2)
-mean_training_time = mean(train_time_table,2)
+no_kernel_mean_precision = mean(no_kernel_precision_table,2)
+no_kernel_mean_train_time = mean(no_kernel_train_time_table,2)
+
+kernel_mean_precision = mean(kernel_precision_table,2)
+kernel_mean_train_time = mean(kernel_train_time_table,2)
+
+save([dataset '_kernel_precision1_table'], 'kernel_precision_table' );
+save([dataset '_kernel_train_time_table'], 'kernel_train_time_table' );
+
+save([dataset '_no_kernel_precision1_table'], 'no_kernel_precision_table' );
+save([dataset '_no_kernel_train_time_table'], 'no_kernel_train_time_table' );
 
