@@ -2,13 +2,15 @@
 total_runs = 1;
 
 %load dataset
-load './datasets/enron'
-%X = X(1:2000,:);
-%y = y(1:2000,:);
+load './datasets/nuswide'
+
+%artificially reduce number of samples in dataset
+X = X(1:2000,:);
+y = y(1:2000,:);
 
 %compression ratios to run for
 %percent_compression_list = 0:0.1:0.9;
-percent_compression_list = 0.5;
+percent_compression_list = 0.9;
 
 %parameters
 opts.maxiter = 100;

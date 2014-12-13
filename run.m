@@ -32,26 +32,33 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,opts)
 
 	%train
 	t = clock;
+	
+	%random projection matrix
 	phi = rand(K,L);
 
+	%random binary projection  matrix
 	%phi = round(rand(K,L));
+
+	%all zeros projection matrix
 	%phi = zeros(K,L);
+
+	%dropping out labels 
 	%phi = rand(K,L);
 	%for i = 1:(L-K)
 	%	col = ceil(rand() * L);  
 	%	phi(:,col) = zeros(K,1);
 	%end
+
+	%squared exponential kernel parameters
 	kernel_length_scale = 1;
 	kernel_sigma = 1000;
+
 	if opts.kernelize == 1
 		kernel = zeros(N_train,N_train);
 		for i = 1:N_train
 			for j = 1:N_train
 				temp_kernel = kernel_sigma^2 * exp(- norm(X(i,:) - X(j,:)) ^ 2 / (2 * kernel_length_scale^2));
 				kernel(i,j) = temp_kernel;
-%				kernel(i,j) = kernel_sigma ^2 * exp( - norm(X_train(i,:) - X_train(j,:))^2 / (2 * (kernel_length_scale)^2 ) );
-%				kernel(i,j) = X_train(i,:) * X_train(j,:)';
-				%pause;
 			end
 		end
 		G = X_train' * pinv( kernel +  (opts.small_sigma)^(2) * eye(N_train) ) ;

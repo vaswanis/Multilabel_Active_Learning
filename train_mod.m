@@ -8,39 +8,24 @@ small_sigma = opts.small_sigma;
 %number of update iterations
 maxiter = opts.maxiter;
 
-
 d = size(X,2); %#(num features)
 N = size(X,1); %#(num examples)
 
-%random projection matrix
-%phi = rand(K,L);
-
 %initialization
 Z(1:N) = struct('mu',zeros(K,1),'sigma',eye(K));
-
 if rand_initialize == 1
 	W(1:K) = struct('mu',zeros(d,1),'sigma',eye(d));
 end
-
-%for k = 1:K
-%    W(k).sigma = pinv(small_sigma^(-2) * G + eye(d));
-%end
-
-
 for i = 1:N
     Z(i).sigma = ((small_sigma^2 * chi^2) / (small_sigma^2 + chi^2)) * eye(K,K);
 end
 
-%train examples
 
 temp = (concat_struct_attr(Z,'mu'));
 for t = 1:maxiter
     
     if mod(t,100) == 0
-        %fprintf('Training iteration: %d\n', t);
-        %norm(temp_old - temp(:)) / norm(temp)
         if norm(temp_old - temp(:)) / norm(temp) < 1e-6
-	    %fprintf('Breaks at iteration %d\n', t);
             break;
         end
     end
@@ -57,8 +42,8 @@ for t = 1:maxiter
     temp_old = temp(:);
     temp = (concat_struct_attr(Z,'mu'));
     
+    %update W(i)     
     for k = 1:K
-        %update W(i)     
         W(k).mu = G * temp(:,k);
     end
     

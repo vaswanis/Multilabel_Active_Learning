@@ -36,6 +36,9 @@ function [precision_uncertainty, precision_rand] = run_active(percent_compressio
 	%initial train
 	t = clock;
 	phi = rand(K,L);
+
+
+
 	[W,phi,opts] = train_mod(X_train_initial,y_train_initial,K,opts,phi,1,[]);
 	fprintf('Train time = %f\n', etime(clock,t));
 
