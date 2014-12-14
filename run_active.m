@@ -1,4 +1,4 @@
-function [precision_uncertainty, precision_rand] = run_active(percent_compression, X, y, opts)
+function [precision_uncertainty, precision_rand] = run_active(percent_compression, X, y,phi, opts)
 
 	%number of true labels
 	L = size(y,2);
@@ -38,7 +38,6 @@ function [precision_uncertainty, precision_rand] = run_active(percent_compressio
 
 	%initial train
 	t = clock;
-	phi = rand(K,L);
 
 	opts.kernel_length_scale = 1;
 	opts.kernel_sigma = 1;
