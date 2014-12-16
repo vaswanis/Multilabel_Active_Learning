@@ -1,4 +1,4 @@
-function [precision,train_time, test_time] = run(percent_compression, X,y,phi,opts)
+function [precision,train_time, test_time] = run(percent_compression, X,y,phi,opts, varargin)
 
 	%number of true labels
 	L = size(y,2);
@@ -14,21 +14,14 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,phi,op
 
 	X_train = X(1:N_train,:);
 	y_train = y(1:N_train,:);
-	N_test = size(X,1) - N_train;
-	X_test = X(N_train + 1:end,:);
-	y_test = y(N_train+1:end,:);
-
-	if opts.CV
-		%n-fold cross-validation
-		cross_validation;
-	else
-		%default parameters	
-		best_small_sigma = 1e-2;
-		best_chi = 1e-4;
-	end
-
-	opts.chi = best_chi;
-	opts.small_sigma = best_small_sigma;
+	
+    if isempty(varargin)
+        X_test = X(N_train + 1:end,:);
+        y_test = y(N_train+1:end,:);
+    else
+        X_test = varargin{1};
+        y_test = varargin{2};
+    end
 
 	%train
 	t = clock;
@@ -48,13 +41,13 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,phi,op
 
 	%squared exponential kernel parameters
 
-	kernel_length_scale = 1;
 
 	if opts.kernelize == 1
 		kernel = zeros(N_train,N_train);
 		for i = 1:N_train
 			for j = 1:N_train
-				temp_kernel = exp(- norm(X_train(i,:) - X_train(j,:)) ^ 2 / (2 * kernel_length_scale^2));
+                
+				temp_kernel = exp(- norm(X_train(i,:) - X_train(j,:)) ^ 2 / (2 * opts.kernel_length_scale^2));
 				kernel(i,j) = temp_kernel;
 			end
 		end

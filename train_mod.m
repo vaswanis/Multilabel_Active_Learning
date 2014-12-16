@@ -1,4 +1,4 @@
-function [W,phi,opts] = train_mod(X,y,K,opts,phi, rand_initialize, W, G)
+function [W,phi,opts] = train_mod(X,y, K, opts, phi, rand_initialize, W, G)
 
 L = size(y,2); %#(true labels)
 

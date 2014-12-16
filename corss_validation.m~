@@ -1,4 +1,6 @@
- n = 5;
+function [best_small_sigma, best_chi] = cross_validation(n, best_small_sigma_values, best_chi_values)
+
+n = 5;
     chunk_size = floor(N/n);
     min_param_err = 100;
     for chi=[1e-4, 1e-3, 1e-2]
@@ -29,3 +31,6 @@
             
         end
     end
+    
+    
+end

@@ -17,9 +17,28 @@ percent_compression_list = 0.9;
 opts.train_maxiter = 200;
 opts.test_maxiter = 100;
 
-opts.train_fraction = 0.8;
-opts.CV = 0;
+opts.train_fraction = 0.9;
+opts.CV = 1;
 opts.k = 1;
+
+opts.kernelize = 1;
+
+small_sigma_values = [1e-2, 1e-1];
+chi_values = [1e-5, 1e-4, 1e-3];
+kernel_length_scale_values = [1 10];
+
+n = 2;
+if opts.CV
+    [best_small_sigma, best_chi, best_kernel_length_scale] = cross_validation(percent_compression, X, y, phi, opts, n, small_sigma_values, chi_values, kernel_length_scale_values)
+else
+    best_small_sigma = 1e-2;
+    best_chi = 1e-4;
+    best_kernel_length_scale = 1;
+end
+
+opts.small_sigma = best_small_sigma;
+opts.chi = best_chi;
+opts.kernel_length_scale = best_kernel_length_scale;
 
 p = size(percent_compression_list,2);
 
