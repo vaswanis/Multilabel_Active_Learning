@@ -1,5 +1,5 @@
 %number of runs 
-total_runs = 3;
+total_runs = 1;
 
 %load dataset
 dataset = 'enron';
@@ -21,7 +21,7 @@ opts.CV = 0;
 opts.k = 1;
 
 %active learning parameters
-opts.max_rounds = 30;
+opts.max_rounds = 100;
 opts.selection_batch_size = 1;
 opts.N_train_initial = 200;
 
@@ -45,7 +45,6 @@ for run_no = 1:total_runs
 
 	%without kernelization
 	opts.kernelize = 0;
-
         [precision_uncertainty, precision_random] = run_active(percent_compression,X,y,phi,opts);
 	no_kernel_uncertainty_precision_table(:,run_no) = precision_uncertainty;
 	no_kernel_random_precision_table(:,run_no) = precision_random;
