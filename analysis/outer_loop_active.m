@@ -1,9 +1,13 @@
 %number of runs 
 total_runs = 1;
 
+%adding paths
+addpath('../model/');
+addpath('../utils/');
+
 %load dataset
 dataset = 'enron';
-load(['./datasets/' dataset])
+load(dataset);
 
 %artfiicailly reduce number of ssamples in dataset
 %X = X(1:500,:);

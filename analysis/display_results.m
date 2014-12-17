@@ -3,6 +3,13 @@ function [] = display_results(dataset)
 close all;
 X = 10:10:100;
 
+%adding paths
+addpath('../model/');
+addpath('../utils/');
+addpath('../datasets/');
+addpath('../results/');
+
+
 load([dataset '_kernel_precision1_table.mat'])
 load([dataset '_no_kernel_precision1_table.mat'])
 
@@ -24,12 +31,12 @@ title('Precision@1 vs Compression','FontSize',24);
 legend('With Kernel', 'Without Kernel','Location','southeast');
 
 set(gca,'FontSize',20);
-saveas(gcf,['./Results/' dataset '_Precision1_vs_Compression.fig'])
-print('-dpng',['./Results/' dataset '_Precision1_vs_Compression.png'])
+saveas(gcf,['../results/' dataset '_Precision1_vs_Compression.fig'])
+print('-dpng',['../results/' dataset '_Precision1_vs_Compression.png'])
 
 
-load(['./Results/' dataset '_kernel_train_time_table.mat'])
-load(['./Results/' dataset '_no_kernel_train_time_table.mat'])
+load([dataset '_kernel_train_time_table.mat'])
+load([dataset '_no_kernel_train_time_table.mat'])
 
 kernel_Yt = mean(kernel_train_time_table,2);
 kernel_Yt = sort(kernel_Yt);
@@ -48,8 +55,8 @@ title('Training Time vs Compresseion','FontSize',24);
 legend('With Kernel', 'Without Kernel','Location','southeast');
 
 set(gca,'FontSize',20);
-saveas(gcf,['./Results/' dataset '_Training_Time_vs_Compression.fig']);
-print('-dpng',['./Results/' dataset '_Training_Time_vs_Compression.png']);
+saveas(gcf,['../results/' dataset '_Training_Time_vs_Compression.fig']);
+print('-dpng',['../results/' dataset '_Training_Time_vs_Compression.png']);
 
 end
 

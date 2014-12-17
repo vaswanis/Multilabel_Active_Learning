@@ -22,6 +22,7 @@ end
 
 
 temp = (concat_struct_attr(Z,'mu'));
+
 for t = 1:maxiter
     
     if mod(t,100) == 0

@@ -39,23 +39,23 @@ for i = 1:N
         E_alpha_i = a_i ./ b_i;
         
         %update Y(i)
-	%fast inversion
+        %fast inversion
         Dinv = diag(1 ./ E_alpha_i);
         Y(i).sigma = Dinv - (Dinv * phi' * (inv(chi^2 * eye(K) + phi * Dinv * phi' )) * phi * Dinv);
-
-	%conventional inversion
+        
+        %conventional inversion
         %Y(i).sigma = pinv(diag(E_alpha_i) + (phi' * phi) / (chi^2));
-
-	y_old = Y(i).mu;
+        
+        y_old = Y(i).mu;
         Y(i).mu = ( Y(i).sigma * phi' * Z(i).mu ) / (chi^2);
         
         %update b
         b_i = b0(i,:) + 0.5 * ((diag(Y(i).sigma) + (Y(i).mu).^2))';
-
-	if norm(Y(i).mu - y_old) / norm(Y(i).mu) < 1e-4
-		%break;
-	end
-
+        
+        if norm(Y(i).mu - y_old) / norm(Y(i).mu) < 1e-4
+            %break;
+        end
+        
     end
     
 end
