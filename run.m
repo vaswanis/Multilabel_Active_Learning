@@ -62,13 +62,13 @@ function [precision,train_time, test_time] = run(percent_compression, X,y,phi,op
 	end
 
 	
-        [W,phi,opts] = train_mod(X_train,y_train,K,opts,phi,1,[], G);
+        [W,phi,opts] = train(X_train,y_train,K,opts,phi,1,[], G);
 	train_time = etime(clock,t); 
 	fprintf('Train time = %f\n', train_time);
 
 	%test
 	t = clock;
-	Y = test_mod(X_test,W,L,phi,opts);
+	Y = test(X_test,W,L,phi,opts);
 	yhat = concat_struct_attr(Y,'mu');
 	test_time = etime(clock,t);
 	fprintf('Test time = %f\n', test_time);

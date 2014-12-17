@@ -60,7 +60,7 @@ function [precision_uncertainty, precision_rand] = run_active(percent_compressio
 	end
 
 
-	[W,phi,opts] = train_mod(X_train_initial,y_train_initial,K,opts,phi,1,[], G) ;
+	[W,phi,opts] = train(X_train_initial,y_train_initial,K,opts,phi,1,[], G) ;
 	fprintf('Train time = %f\n', etime(clock,t));
 
 	%inital test
@@ -104,7 +104,7 @@ function [precision_uncertainty, precision_rand] = run_active(percent_compressio
 		fprintf('End of active learning round %d\n', AL_round);
 
 		%test at each round	
-		Y = test_mod(X_test,W_uncertainty,L,phi,opts);
+		Y = test(X_test,W_uncertainty,L,phi,opts);
 		yhat_uncertainty = concat_struct_attr(Y,'mu');
 
 		Y = test_mod(X_test,W_rand,L,phi,opts);
